@@ -1,5 +1,6 @@
 # control-board
 Arduino code for Boxbots control board - 3CH R/C receiver input to TB6612 dual h-bridge output
+This repository taken and modified from here:  https://github.com/BoxBots/control-board
 
 ### Add EnableInterrupt
 Note that this Arduino code needs a library added to it called EnableInterrupt

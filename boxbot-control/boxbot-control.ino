@@ -33,9 +33,9 @@
 #define   coast   2
 #define   brake   3
 
-#define   ch1_pin   10    // input channel one is on pin 10
+#define   ch1_pin  10    // input channel one is on pin 10
 #define   ch2_pin  11    // input channel two is on pin 11
-#define   ch3_pin   12    // input channel three is on pin 12
+#define   ch3_pin  12    // input channel three is on pin 12
 
 #define   ch1_index  0
 #define   ch2_index  1
@@ -49,7 +49,7 @@ int ch3; // Weapon Switch
 int tdeadband = 10;  // How much in the throttle neutral position does it count as neutral centered on 255  (exp: for 15, deadband is from 240 to 270, 15 each side of 255) 
 int sdeadband = 5;  // how much in the steering neutral position does it count as neutral centered on 255  (exp: for 15, deadband is from 240 to 270, 15 each side of 255) 
 int spd = 0;
-byte neutral = 255;
+byte neutral = 255;  // Note this netural is for both steering and throttle.  consider (strongly) breaking into neutralSteer and neutralThrottle to allo independent setting
 
 int count = 0;
 
