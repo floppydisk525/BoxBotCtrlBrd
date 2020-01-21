@@ -19,6 +19,11 @@ Sketch -> Include Library -> Add .Zip Library
 ![alt text][hardware1]
 ![alt text][hardware2]
 
+### Controls
+I connected the Nano to the Arduino IDE serial monitor and trimmed channel 1 steering and channel 2 steering soo that they both centered around 255.  
+
+The Weapon button on the FS-GT2B 3 channel radio is a TOGGLE and NOT momentary.  IE press the button one time to change state from OFF to ON or ON to OFF.  
+
 ### Happy roboting....
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"
