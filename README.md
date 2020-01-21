@@ -1,6 +1,7 @@
 # control-board
 Arduino code for Boxbots control board - 3CH R/C receiver input to TB6612 dual h-bridge output
 
+### Add EnableInterrupt
 Note that this Arduino code needs a library added to it called EnableInterrupt
 https://www.arduinolibraries.info/libraries/enable-interrupt
 I have copied version 1.1.0 to this repository so that you do not have to search for it.  However, feel free to download the latest revision at your leisure.  
@@ -10,6 +11,15 @@ Sketch -> Include Library -> Add .Zip Library
 
 ![alt text][AddLibrary]
 
-Happy roboting....
+### Schematic Image
+
+
+### Board Images
+
+
+### Happy roboting....
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"
+[schematic]:/Images/control board sch v1.jpg "Schematic"
+[hardware1]:/Images/IMG_20160724_100326.jpg "Hardware Image"
+[hardware2]:/Images/IMG_20160724_100359.jpg "Hardware Image"
