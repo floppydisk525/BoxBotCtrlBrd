@@ -12,14 +12,15 @@ Sketch -> Include Library -> Add .Zip Library
 ![alt text][AddLibrary]
 
 ### Schematic Image
-
+![alt text][schematic]
 
 ### Board Images
-
+![alt text][hardware1]
+![alt text][hardware2]
 
 ### Happy roboting....
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"
-[schematic]:/Images/control board sch v1.jpg "Schematic"
+[schematic]:/Images/control_board_sch_v1.jpg "Schematic"
 [hardware1]:/Images/IMG_20160724_100326.jpg "Hardware Image"
 [hardware2]:/Images/IMG_20160724_100359.jpg "Hardware Image"
