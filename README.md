@@ -22,9 +22,14 @@ Sketch -> Include Library -> Add .Zip Library
 ### Controls
 I connected the Nano to the Arduino IDE serial monitor and trimmed channel 1 steering and channel 2 steering soo that they both centered around 255.  
 
-The Weapon button on the FS-GT2B 3 channel radio is a TOGGLE and NOT momentary.  IE press the button one time to change state from OFF to ON or ON to OFF.  
+The Weapon button on channel 3 of the FS-GT2B 3 channel radio is a TOGGLE and NOT momentary.  IE press the button one time to change the state from OFF to ON.  Press the button one more time to toggle from ON to OFF.  
 
 ### Happy roboting....
+
+
+## Related Links
+https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/
+
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"
 [schematic]:/Images/control_board_sch_v1.jpg "Schematic"
