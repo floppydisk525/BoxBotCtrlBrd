@@ -29,7 +29,13 @@ The Weapon button on channel 3 of the FS-GT2B 3 channel radio is a TOGGLE and NO
 
 ### Related Links
 Data Input Example:  https://forum.arduino.cc/index.php?topic=236162.0  
-https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/  
+Steering example:  https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/  
+Decoding and mixing RC Signals:  https://forum.arduino.cc/index.php?topic=484179.0  
+
+#### To Do  
+fix steering/control  
+Add weapon control  
+Take pix of controller (skyway), receiver, motors and post to page.  
 
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"
