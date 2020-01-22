@@ -28,8 +28,8 @@ The Weapon button on channel 3 of the FS-GT2B 3 channel radio is a TOGGLE and NO
 
 
 ### Related Links
-Data Input Exmaple:  https://forum.arduino.cc/index.php?topic=236162.0
-https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/
+Data Input Example:  https://forum.arduino.cc/index.php?topic=236162.0  
+https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/  
 
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"
