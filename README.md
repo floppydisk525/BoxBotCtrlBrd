@@ -32,7 +32,7 @@ Data Input Example:  https://forum.arduino.cc/index.php?topic=236162.0
 Steering example:  https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/  
 Decoding and mixing RC Signals:  https://forum.arduino.cc/index.php?topic=484179.0  
 
-## Low Profile headers
+## Low Profile Headers (for future development)
 https://www.adafruit.com/product/3008  
 https://www.adafruit.com/product/3009  
 https://www.digikey.com/product-detail/en/mill-max-manufacturing-corp/315-47-110-41-004000/ED10365-ND/8575758  
