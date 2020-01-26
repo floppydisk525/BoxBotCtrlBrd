@@ -1,3 +1,25 @@
+/* reciever_test.ino
+ *  
+ *  Mark Johnsen 20200126
+ *  
+ *  Using an arduino Nano
+ *  This program is based off the box bots program and is used to check that the input pins
+ *  from a 3-channel RC transmitter and receiver are working and obtaining data to drive the
+ *  RC Car.  
+ * 
+ * In this system, 
+ * Channel one is steering and on pin 10 
+ * Channel two (throttle) is on pin 11
+ * Channel three (weapon) is on pin 12
+ * 
+ * Because we want to use high-speed interrupts to capture the PWM signals from the receiver
+ * we use an additional library called EnableInterrupt.h.  It allows interrupts to be used
+ * on pins other than the Arduino basics for a nano which are pins 2 and 3.  
+ * 
+ * Also, there is a check to ensure the transmitter is ON.  Otherwise, the vehicle could
+ * potentially drive off. 
+ */
+
 #include <EnableInterrupt.h>
 
 #define   ch1_pin  10    // input channel one (steering) is on pin 10
