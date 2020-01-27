@@ -59,7 +59,7 @@ volatile uint16_t rc_shared[3];     //temp array for PWM values during reception
 
 
 //--------------------------------------------------------------------------------------  
-//--------------------------------------------------------------------------------------     
+//------------------------------- void setup() -----------------------------------------     
 void setup() {
   // put your setup code here, to run once:
 
@@ -93,12 +93,12 @@ void setup() {
   analogWrite(lpwm, mtrspeed);
   analogWrite(rpwm, mtrspeed);
 
-  //debugging - comment out serial if not needed...
-  Serial.begin(9600); // Pour a bowl of Serial (for debugging)
+  //debugging - comment out serial command if not needed...
+  Serial.begin(9600); 
 }
 
 
-//--------------------------------------------------------------------------------------
+//------------------------------ void loop() --------------------------------------
 void loop() {
 // put your main code here, to run repeatedly:
 
@@ -124,17 +124,11 @@ void loop() {
   // So now both ch1 and ch2 are in the range of 0 to 512, with 255 being neutral
   // ch3 is either 0ish or 1000ish
 
+//print values while debugging, comment out when program setup and running as expected.  
   Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
   Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
   Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);
 
-//  prints same as above w/ no text (??  why have it??)
-//  Serial.print(ch1_rcvalue);    Serial.print("\t");
-//  Serial.print(ch2_rcvalue);    Serial.print("\t");
-//  Serial.println(ch3_rcvalue);
-  
-  delay(20);
-  
   spd = abs(neutral-ch2_rcvalue);
   
   if (ch2_rcvalue<(neutral-tdeadband)) {   // outside deadband, in reverse
@@ -152,6 +146,23 @@ void loop() {
       motordirection(brake);
     }
   }
+  
+  delay(1);   //Why this here?  How much should it be??  Seems unnecessary.  
+}
+
+//----------------------- TRANSMITTER ON?? ------------------------------
+bool bTransmitterON(){
+  //check to see if transmitter is ON, if not, loop until it is..
+  //  On the FlySky FS-GT2B transmitter, if the transmitter is OFF the following output is observed:
+  //  Ch1 steering - 0 
+  //  Ch2 throttle - 1500
+  //  Ch3 'weapton' - 0
+
+  if (ch1_rcvalue < 750){  //check to see if the transmitter is ON.  Only check channel 1 steering.
+    Serial.println("Turn ON your Transmitter!!"); //Serial.print("\t");
+    return false;
+  }
+  else return true;
 }
 
 //------------------------- ISR READ INTERRUPTS -------------------------- 
@@ -169,6 +180,8 @@ void get_input(uint8_t channel, uint8_t input_pin) {
     rc_start[channel] = micros();
   } else {
     uint16_t rc_compare = (uint16_t)(micros() - rc_start[channel]);
+    //add in limits (?)
+    //add in smoothing - ie 3x3 or 3x4 array... 
     rc_shared[channel] = rc_compare;
   }
 
