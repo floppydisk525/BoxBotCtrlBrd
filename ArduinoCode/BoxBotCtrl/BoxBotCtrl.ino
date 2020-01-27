@@ -1,7 +1,7 @@
 /* Code for V2 of Box Bots robot control board
  * 
  * Program Name:
- * BoxBotCtrl
+ * BoxBotCtrl.ino
  * Jan 26, 2020
  * 
  * Arduino Nano clone w/ CH340 USB connected to TB6612 motor driver board
@@ -13,6 +13,10 @@
  * CH2 - Throttle
  * CH3 - Switch
  * 
+ * TO DO LIST:
+ *   1. Add smoothing to pwm readings
+ *   2. add tuning for fwd/rev counts to drive straight.
+ *
  */
 
 #include <EnableInterrupt.h>
