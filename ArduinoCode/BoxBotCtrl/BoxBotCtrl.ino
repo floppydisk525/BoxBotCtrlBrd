@@ -1,10 +1,8 @@
 /* Code for V2 of Box Bots robot control board
  * 
  * Program Name:
- * boxbot-control
- * Jan 20, 2020
- * 
- * program taken from github
+ * BoxBotCtrl
+ * Jan 26, 2020
  * 
  * Arduino Nano clone w/ CH340 USB connected to TB6612 motor driver board
  * hooked up to receiver of 2.4GHz TX/RX 
@@ -49,7 +47,9 @@ int ch3_rcvalue; // Weapon Switch to make output calcs
 int tdeadband = 10;  // How much in the throttle neutral position does it count as neutral centered on 255  (exp: for 15, deadband is from 240 to 270, 15 each side of 255) 
 int sdeadband = 5;  // how much in the steering neutral position does it count as neutral centered on 255  (exp: for 15, deadband is from 240 to 270, 15 each side of 255) 
 int spd = 0;
-byte neutral = 255;  // Note this netural is for both steering and throttle.  consider (strongly) breaking into neutralSteer and neutralThrottle to allo independent setting
+byte neutral = 255;       // Note this netural is for both steering and throttle.  consider (strongly) breaking into neutralSteer and neutralThrottle to allo independent setting
+byte strNeutral = 255;    //steering neutral
+byte strThrottle = 255;   //throttle neutral
 
 int count = 0;
 
@@ -63,9 +63,6 @@ volatile uint16_t rc_shared[3];     //temp array for PWM values during reception
 void setup() {
   // put your setup code here, to run once:
 
- // for debugging
-  Serial.begin(9600); // Pour a bowl of Serial (for debugging)    
-  
   //setup output pins
   pinMode(lpwm, OUTPUT);
   pinMode(lpin1, OUTPUT);
@@ -95,6 +92,9 @@ void setup() {
   digitalWrite(rpin2, LOW);
   analogWrite(lpwm, mtrspeed);
   analogWrite(rpwm, mtrspeed);
+
+  //debugging - comment out serial if not needed...
+  Serial.begin(9600); // Pour a bowl of Serial (for debugging)
 }
 
 
