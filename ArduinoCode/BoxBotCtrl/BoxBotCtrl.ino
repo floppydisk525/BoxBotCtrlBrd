@@ -34,6 +34,8 @@
 #define   reverse 1
 #define   coast   2
 #define   brake   3
+#define   RightTurn 4
+#define   LeftTurn  5
 
 #define   ch1_pin  10    // input channel one is on pin 10
 #define   ch2_pin  11    // input channel two is on pin 11
@@ -226,8 +228,22 @@ void motordirection(byte direction) {
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, HIGH);
       break;
+	  
+	case RightTurn:
+      digitalWrite(lpin1, LOW);
+      digitalWrite(lpin2, HIGH);
+      digitalWrite(rpin1, HIGH);
+      digitalWrite(rpin2, LOW);
+      break;
 
-    default:  // coast condition
+    case LeftTurn:
+      digitalWrite(lpin1, HIGH);
+      digitalWrite(lpin2, LOW);
+      digitalWrite(rpin1, LOW);
+      digitalWrite(rpin2, HIGH);
+      break;
+	
+	default:  // coast condition
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, LOW);
       digitalWrite(rpin1, LOW);
