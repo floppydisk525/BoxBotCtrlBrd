@@ -18,6 +18,11 @@
  * 
  * Also, there is a check to ensure the transmitter is ON.  Otherwise, the vehicle could
  * potentially drive off. 
+ * 
+ * smoothunits is the number of PWM readings to record and smooth by averaging them.  Since one PWM signal is 20ms (mille secs), 
+ * taking 5 values would smooth the last 100ms.  The more values to smooth (average), the more laggy the control
+ * will become, but the less jerky.  I think starting with 3 or 4 will give decent response and provide some 
+ * smoothing.  
  */
 
 #include <EnableInterrupt.h>
@@ -30,13 +35,22 @@
 #define   ch2_index  1
 #define   ch3_index  2
 
+#define numRC_Channels 3;
+
 int ch1_rcvalue; // Steering
 int ch2_rcvalue; // Thottle
 int ch3_rcvalue; // Weapon Switch
 
-uint16_t rc_values[3];    //array of PWM values rec'd 
-uint32_t rc_start[3];     //time at start of data collection
-volatile uint16_t rc_shared[3];     //temp array for PWM values during reception
+#define numSmoothUnits 4;       //number of PWM readings to take and smooth.  Since one PWM signal is 20ms (mille secs), taking 5
+
+//turn into an array!
+uint16_t total[numRC_Channels];      //keeps track of the total for faster average calc
+uint16_t readings[numRC_Channels][numSmoothUnits];    //2d-array to keep track of readings
+int readIndex[numRC_Channels];       //keeps track of readIndex for each channel
+
+uint16_t rc_values[numRC_Channels];    //array of PWM values rec'd 
+uint32_t rc_start[numRC_Channels];     //time at start of data collection
+volatile uint16_t rc_shared[numRC_Channels];     //temp array for PWM values to make calcs.  Will be the SMOOTHED values.  
 
 void setup()
 {
@@ -44,6 +58,20 @@ void setup()
   pinMode(ch1_pin, INPUT);       // channel one of RC receiver, steering
   pinMode(ch2_pin, INPUT);       // channel two of RC receiver, throttle
   pinMode(ch3_pin, INPUT);       // channel three of RC receiver, switch
+
+  //initalize arrays here.  
+  for (int i=0; i<numRC_Channels; i++)
+  {
+	total[i]=0;
+	readIndex[i]=0;
+	rc_values[i]=0;
+	rc_start[i]=0;
+	rc_shared[i]=0;
+    for (int j = 0; j< numSmoothUnits; j++)
+    {
+       readings[i][j] = 0;
+    }
+  }  
 
   //turn on interrupts
   enableInterrupt(ch1_pin, get_ch1, CHANGE);
