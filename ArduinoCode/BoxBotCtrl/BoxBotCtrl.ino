@@ -17,7 +17,6 @@
  *   1. Add smoothing to pwm readings
  *   2. add tuning for fwd/rev counts to drive straight.
  *   3. add code to turn on LED for weapon
- *   4. add bTransmitterON() check in void loop()
  *
  */
 
@@ -118,26 +117,28 @@ void loop() {
   ch2_rcvalue = rc_values[ch2_index]; // Throttle : 1000 Reverse, 2000 Forward
   ch3_rcvalue = rc_values[ch3_index]; // Switch, toggle switch between 1000 (99x) and 2000 (199x) value
 
-  ch1_rcvalue = map(ch1_rcvalue, 1000,2000, 0, 1000); //center over 500
-  ch2_rcvalue = map(ch2_rcvalue, 1000,2000, 0, 1000); //center over 500
-  ch3_rcvalue = map(ch3_rcvalue, 1000,2000, 0, 1000); //center over 500
-
-  ch1_rcvalue = ch1_rcvalue >> 1;  // right bit shift, divide by 2
-  ch2_rcvalue = ch2_rcvalue >> 1;  // right bit shift, divide by 2
-
-  ch1_rcvalue = constrain(ch1_rcvalue, 0, 512);
-  ch2_rcvalue = constrain(ch2_rcvalue, 0, 512);
-  ch3_rcvalue = constrain(ch3_rcvalue, 0, 1000);
+  if (bTransmitterON() == true) {
+    ch1_rcvalue = map(ch1_rcvalue, 1000,2000, 0, 1000); //center over 500
+    ch2_rcvalue = map(ch2_rcvalue, 1000,2000, 0, 1000); //center over 500
+    ch3_rcvalue = map(ch3_rcvalue, 1000,2000, 0, 1000); //center over 500
   
-  // So now both ch1 and ch2 are in the range of 0 to 512, with 255 being neutral
-  // ch3 is either 0ish or 1000ish
-
-//print values while debugging, comment out when program setup and running as expected.  
-  Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
-  Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
-  Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);
-
-  locomotion();   //Calculate and determine direction of vehicle
+    ch1_rcvalue = ch1_rcvalue >> 1;  // right bit shift, divide by 2
+    ch2_rcvalue = ch2_rcvalue >> 1;  // right bit shift, divide by 2
+  
+    ch1_rcvalue = constrain(ch1_rcvalue, 0, 512);
+    ch2_rcvalue = constrain(ch2_rcvalue, 0, 512);
+    ch3_rcvalue = constrain(ch3_rcvalue, 0, 1000);
+    
+    // So now both ch1 and ch2 are in the range of 0 to 512, with 255 being neutral
+    // ch3 is either 0ish or 1000ish
+  
+  //print values while debugging, comment out when program setup and running as expected.  
+    Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
+    Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
+    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);
+  
+    locomotion();   //Calculate and determine direction of vehicle
+  } 
     
   delay(1);   //Why this here?  How much should it be??  Seems unnecessary.  
 }
@@ -215,14 +216,14 @@ void motordirection(byte direction) {
       digitalWrite(rpin2, HIGH);
       break;
 	  
-	case RightTurn:
+	case rightturn:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
       break;
 
-    case LeftTurn:
+    case leftturn:
       digitalWrite(lpin1, HIGH);
       digitalWrite(lpin2, LOW);
       digitalWrite(rpin1, LOW);
