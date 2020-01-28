@@ -16,6 +16,8 @@
  * TO DO LIST:
  *   1. Add smoothing to pwm readings
  *   2. add tuning for fwd/rev counts to drive straight.
+ *   3. add code to turn on LED for weapon
+ *   4. add bTransmitterON() check in void loop()
  *
  */
 
@@ -34,8 +36,8 @@
 #define   reverse 1
 #define   coast   2
 #define   brake   3
-#define   RightTurn 4
-#define   LeftTurn  5
+#define   rightturn 4
+#define   leftturn  5
 
 #define   ch1_pin  10    // input channel one is on pin 10
 #define   ch2_pin  11    // input channel two is on pin 11
@@ -52,10 +54,10 @@ int ch2_rcvalue; // Thottle value to make output calcs
 int ch3_rcvalue; // Weapon Switch to make output calcs
 int tdeadband = 10;  // How much in the throttle neutral position does it count as neutral centered on 255  (exp: for 15, deadband is from 240 to 270, 15 each side of 255) 
 int sdeadband = 5;  // how much in the steering neutral position does it count as neutral centered on 255  (exp: for 15, deadband is from 240 to 270, 15 each side of 255) 
-int spd = 0;
+//int spd = 0;
 byte neutral = 255;       // Note this netural is for both steering and throttle.  consider (strongly) breaking into neutralSteer and neutralThrottle to allo independent setting
 byte strNeutral = 255;    //steering neutral
-byte strThrottle = 255;   //throttle neutral
+byte thrNeutral = 255;   //throttle neutral
 
 int count = 0;
 
@@ -135,24 +137,8 @@ void loop() {
   Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
   Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);
 
-  spd = abs(neutral-ch2_rcvalue);
-  
-  if (ch2_rcvalue<(neutral-tdeadband)) {   // outside deadband, in reverse
-    // if throttle in reverse do this
-    motordirection(reverse);   
-    steering();
-  }
-  else { 
-    if (ch2_rcvalue>(neutral+tdeadband)) {  // outside deadband, going forward
-      // throttle in forward do this
-      motordirection(forward);
-      steering();
-    }
-    else { // in deadband, bring both motors to a stop
-      motordirection(brake);
-    }
-  }
-  
+  locomotion();   //Calculate and determine direction of vehicle
+    
   delay(1);   //Why this here?  How much should it be??  Seems unnecessary.  
 }
 
@@ -209,8 +195,8 @@ void motordirection(byte direction) {
   switch (direction) {
     
     case forward:
-      digitalWrite(lpin1, HIGH);
-      digitalWrite(lpin2, LOW);
+      digitalWrite(lpin1, HIGH);  
+	  digitalWrite(lpin2, LOW);
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
       break;
@@ -247,43 +233,75 @@ void motordirection(byte direction) {
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, LOW);
       digitalWrite(rpin1, LOW);
-      digitalWrite(rpin2, LOW);
-    
+      digitalWrite(rpin2, LOW);    
   }
 }
 
 //--------------------------------------------------------------------------------------
-void steering() {
-  int turn = abs(255-ch1_rcvalue);
+void locomotion() {
+  bool turnonly = false;  
+  
+  if (ch2_rcvalue<(thrNeutral-tdeadband)) {   // outside deadband, in reverse
+    // if throttle in reverse do this
+    motordirection(reverse);   
+	turnonly = false;
+  }
+  else if (ch2_rcvalue>(thrNeutral+tdeadband)) { // outside deadband, going forward
+    // throttle in forward do this
+    motordirection(forward);
+	turnonly = false;
+  }
+  else if (ch1_rcvalue>(strNeutral+sdeadband)) { // RIGHT TURN, no throttle
+    // throttle in forward do this
+    motordirection(rightturn);
+	turnonly = true;
+  }
+  else if (ch1_rcvalue<(strNeutral-sdeadband)) { // LEFT TURN, no throttle
+    // throttle in forward do this
+    motordirection(leftturn);
+	turnonly = true;
+  }
+  else { // in deadband, bring both motors to a stop
+    motordirection(brake);
+	turnonly = false;
+  }
+    
+	
+  int turn = abs(strNeutral-ch1_rcvalue);
   // turn = turn >> 1;    // making steering less sensitive by dividing turn result by 4.
  
-  int drag = (spd-turn);
-  drag = constrain(drag,0,255);
+  if (turnonly == true) { //turn only
+    turn = turn/3;  //make turn 'only' less sensitive and not too fast, modify divider
+	analogWrite(lpwm, turn);
+    analogWrite(rpwm, turn);    
+  } 
+  else {                  // straight or straight with turn
+    int spd = abs(thrNeutral-ch2_rcvalue);    
 
- 
-  Serial.print("turn:");
-  Serial.print(turn);
-  Serial.print("\t");
-  Serial.print("spd:");
-  Serial.print(spd);
-  Serial.print("\t");
-  Serial.print("drag:");
-  Serial.println(drag);
-
-  
-  if (turn > sdeadband) {   // outside the steering deadband
-    if (ch1_rcvalue<neutral) { //steering left
-       analogWrite(lpwm, spd);
-       analogWrite(rpwm, drag);
+    if (turn > (sdeadband)) {   // outside the steering deadband
+      int drag = (spd-turn);    // you can play with this value (increase/decrease) to get different behaviour
+	  drag = constrain(drag,0,255);   
+	  
+	  if (ch1_rcvalue<neutral) { //steering left
+        analogWrite(lpwm, spd);
+        analogWrite(rpwm, drag);
+      }
+      else {  // steering right
+        analogWrite(lpwm, drag);
+        analogWrite(rpwm, spd);
+      }
     }
-    else {  // steering right
-      analogWrite(lpwm, drag);
-      analogWrite(rpwm, spd);
-    }
-  }
-  else { // in the steering deadband
+	else { // in the steering deadband
       analogWrite(lpwm, spd) ;
       analogWrite(rpwm, spd);
-    
+    }
   }
+
+/*  int drag = (spd-turn);
+  drag = constrain(drag,0,255);
+
+  Serial.print("turn:");  Serial.print(turn);  Serial.print("\t");
+  Serial.print("spd:");   Serial.print(spd);   Serial.print("\t");
+  Serial.print("drag:");  Serial.println(drag);   */
+  
 }
