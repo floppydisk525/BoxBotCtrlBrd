@@ -50,9 +50,11 @@ https://www.adafruit.com/product/3009
 https://www.digikey.com/product-detail/en/mill-max-manufacturing-corp/315-47-110-41-004000/ED10365-ND/8575758  
 
 #### To Do  
-fix steering/control  
+fix steering/control  (add offset for output, both fwd & rev?)
 Add weapon control  
 Take pix of controller (skyway), receiver, motors and post to page.  
+##### Someday Maybe (or not at all)  
+It would be neat to write a class for the RC Radio input pins.  That way, if you had a robot with more than 3 channels, you could simply add instances of your class for each pin.  Seems like it might be a cool thing to do.  Here's an example on writing a library that could be useful in this 'nice to have:'  https://www.arduino.cc/en/Hacking/libraryTutorial
 
 
 [AddLibrary]:/Images/LibraryAddImage.png "Add Library Image"

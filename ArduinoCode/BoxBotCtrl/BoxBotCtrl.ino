@@ -272,8 +272,8 @@ void locomotion() {
   // turn = turn >> 1;    // making steering less sensitive by dividing turn result by 4.
  
   if (turnonly == true) { //turn only
-    turn = turn/3;  //make turn 'only' less sensitive and not too fast, modify divider
-	analogWrite(lpwm, turn);
+    turn = turn/3;  //make turn only less sensitive and not too fast, modify divider
+	  analogWrite(lpwm, turn);
     analogWrite(rpwm, turn);    
   } 
   else {                  // straight or straight with turn

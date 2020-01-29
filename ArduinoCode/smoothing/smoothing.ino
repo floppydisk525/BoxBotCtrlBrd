@@ -52,6 +52,10 @@ uint16_t rc_values[numRC_Channels];    //array of PWM values rec'd
 uint32_t rc_start[numRC_Channels];     //time at start of data collection
 volatile uint16_t rc_shared[numRC_Channels];     //temp array for PWM values to make calcs.  Will be the SMOOTHED values.  
 
+//show raw values along with smoothed values
+uint16_t rc_raw[numRC_Channels];    //array of PWM values rec'd 
+volatile uint16_t rc_raw_shared[numRC_Channels];     //temp array for PWM values to make calcs. 
+
 void setup()
 {
   //setup input pins
@@ -92,9 +96,14 @@ void loop()
   ch3_rcvalue = rc_values[ch3_index]; // Switch, toggle switch between 1000 (99x) and 2000 (199x) value
 
   if (bTransmitterON() == true) {
-    Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
-    Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
-    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);
+    Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);   
+    Serial.print(" RAW:"); Serial.print(rc_raw[0]);
+    Serial.print("\t");
+    Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);  
+    Serial.print(" RAW:"); Serial.print(rc_raw[1]);  
+    Serial.print("\t");
+    Serial.print("ch3_rcvalue:"); Serial.print(ch3_rcvalue);
+    Serial.print(" RAW:"); Serial.println(rc_raw[2]);
   }
   
   delay(1);
@@ -121,6 +130,7 @@ bool bTransmitterON(){
 void rc_read_values() {
   noInterrupts();
   memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
+  memcpy(rc_raw, (const void *)rc_raw_shared, sizeof(rc_raw_shared));
   interrupts();
 }
 
@@ -131,6 +141,7 @@ void get_input(uint8_t channel, uint8_t input_pin) {
     total[channel] = total[channel]-readings[channel][readIndex[channel]];    
     uint16_t rc_compare = (uint16_t)(micros() - rc_start[channel]);
     readings[channel][readIndex[channel]] = rc_compare;
+    rc_raw_shared[channel] = rc_compare;  //store a copy of the raw value to display
     total[channel] = total[channel]+readings[channel][readIndex[channel]];
     readIndex[channel] = readIndex[channel]+1;
     if (readIndex[channel] >= numSmoothUnits)  {
