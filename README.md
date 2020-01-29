@@ -16,7 +16,7 @@ Sketch -> Include Library -> Add .Zip Library
 
 ## Helper Programs  
 ### receiver_test.ino  
-The receiver_test.ino program is written to test the incoming PWM signals from the RC Receiver and print them to the serial monitor.  This way, you can check that you have your Arduino and pins setup correctly.  It will test the interrupt servive routines (ISR) to make sure you're receiving acceptable data.  Then, you can move on to running the BoxBotCtrlBrd.ino program.  
+The receiver_test.ino program is written to test the incoming PWM signals from the RC Receiver and print them to the serial monitor.  This way, you can check that you have your Arduino and pins setup correctly.  It will test the interrupt service routines (ISR) to make sure you're receiving acceptable data.  Then, you can move on to running the BoxBotCtrlBrd.ino program.  
 
 ### smoothing.ino  
 The smoothing.ino program is written to expand upon the receiver_test.ino program and test smoothing on the PWM values read from the RC receiver.  This is to smooth out jerky motion from noise or errors may introduce into the PWM stream.  There's probably a better way to do this, but it is a start and will work better than nothing.  This is in the BoxBotCtrlBrd.ino program (not there yet remove this comment when inserted).  

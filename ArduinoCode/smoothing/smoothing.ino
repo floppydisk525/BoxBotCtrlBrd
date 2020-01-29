@@ -35,13 +35,13 @@
 #define   ch2_index  1
 #define   ch3_index  2
 
-#define numRC_Channels 3;
+#define numRC_Channels 3
 
 int ch1_rcvalue; // Steering
 int ch2_rcvalue; // Thottle
 int ch3_rcvalue; // Weapon Switch
 
-#define numSmoothUnits 4;       //number of PWM readings to take and smooth.  Since one PWM signal is 20ms (mille secs), taking 5
+#define numSmoothUnits 4       //number of PWM readings to take and smooth.  Since one PWM signal is 20ms (mille secs), taking 5
 
 //turn into an array!
 uint16_t total[numRC_Channels];      //keeps track of the total for faster average calc
@@ -128,8 +128,18 @@ void get_input(uint8_t channel, uint8_t input_pin) {
   if (digitalRead(input_pin) == HIGH) {
     rc_start[channel] = micros();
   } else {
+    total[channel] = total[channel]-readings[channel][readIndex[channel]];    
     uint16_t rc_compare = (uint16_t)(micros() - rc_start[channel]);
-    rc_shared[channel] = rc_compare;
+    readings[channel][readIndex[channel]] = rc_compare;
+    total[channel] = total[channel]+readings[channel][readIndex[channel]];
+    readIndex[channel] = readIndex[channel]+1;
+    if (readIndex[channel] >= numSmoothUnits)  {
+      readIndex[channel]=0;
+    }
+
+    //avg=total[channel]/numSmoothUnits;
+    rc_shared[channel] = total[channel]/numSmoothUnits;
+    //rc_shared[channel] = rc_compare;
   }
 
 //  Serial.print("count # = ");
