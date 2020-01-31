@@ -101,7 +101,7 @@ void setup() {
   analogWrite(rpwm, mtrspeed);
 
   //debugging - comment out serial command if not needed...
-  Serial.begin(9600); 
+  //Serial.begin(9600); 
 }
 
 
@@ -132,10 +132,10 @@ void loop() {
     // So now both ch1 and ch2 are in the range of 0 to 512, with 255 being neutral
     // ch3 is either 0ish or 1000ish
   
-  //print values while debugging, comment out when program setup and running as expected.  
+/*  //print values while debugging, comment out when program setup and running as expected.  
     Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
     Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
-    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);
+    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);  */
   
     locomotion();   //Calculate and determine direction of vehicle
   } 
@@ -197,7 +197,7 @@ void motordirection(byte direction) {
     
     case forward:
       digitalWrite(lpin1, HIGH);  
-	  digitalWrite(lpin2, LOW);
+	    digitalWrite(lpin2, LOW);
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
       break;
@@ -245,26 +245,31 @@ void locomotion() {
   if (ch2_rcvalue<(thrNeutral-tdeadband)) {   // outside deadband, in reverse
     // if throttle in reverse do this
     motordirection(reverse);   
-	turnonly = false;
+	  turnonly = false;
+    //Serial.println("Reverse");  
   }
   else if (ch2_rcvalue>(thrNeutral+tdeadband)) { // outside deadband, going forward
     // throttle in forward do this
     motordirection(forward);
-	turnonly = false;
+	  turnonly = false;
+    //Serial.println("Forward");  
   }
   else if (ch1_rcvalue>(strNeutral+sdeadband)) { // RIGHT TURN, no throttle
     // throttle in forward do this
     motordirection(rightturn);
-	turnonly = true;
+	  turnonly = true;
+    //Serial.println("RIGHTTURN");
   }
   else if (ch1_rcvalue<(strNeutral-sdeadband)) { // LEFT TURN, no throttle
     // throttle in forward do this
     motordirection(leftturn);
-	turnonly = true;
+	  turnonly = true;
+    //Serial.println("LeftTurn");
   }
   else { // in deadband, bring both motors to a stop
     motordirection(brake);
-	turnonly = false;
+	  turnonly = false;
+    //Serial.println("brake");
   }
     
 	
