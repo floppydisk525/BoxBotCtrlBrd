@@ -63,17 +63,17 @@ void setup()
   pinMode(ch2_pin, INPUT);       // channel two of RC receiver, throttle
   pinMode(ch3_pin, INPUT);       // channel three of RC receiver, switch
 
-  //initalize arrays here.  
+  //initalize arrays.  
   for (int i=0; i<numRC_Channels; i++)
   {
-	total[i]=0;
-	readIndex[i]=0;
-	rc_values[i]=0;
-	rc_start[i]=0;
-	rc_shared[i]=0;
+	  total[i]=0;
+	  readIndex[i]=0;
+	  rc_values[i]=0;
+	  rc_start[i]=0;
+	  rc_shared[i]=0;
     for (int j = 0; j< numSmoothUnits; j++)
     {
-       readings[i][j] = 0;
+      readings[i][j] = 0;
     }
   }  
 
