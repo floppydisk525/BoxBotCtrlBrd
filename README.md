@@ -41,6 +41,7 @@ Data Input Example:  https://forum.arduino.cc/index.php?topic=236162.0
 Steering example:  https://www.instructables.com/id/Rc-Controller-for-Better-Control-Over-Arduino-Proj/  
 Decoding and mixing RC Signals:  https://forum.arduino.cc/index.php?topic=484179.0  
 2D array Tutorial:  https://www.tutorialspoint.com/arduino/arduino_multi_dimensional_arrays.htm  
+sparkfun rc w/ arduino:  https://www.sparkfun.com/tutorials/348  
 
 Smoothing Data Example:  https://www.arduino.cc/en/tutorial/smoothing
 
