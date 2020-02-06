@@ -291,25 +291,25 @@ void motordirection(byte direction) {
 void locomotion() {
   bool turnonly = false;  
   
-  if (ch2_rcvalue<(thrNeutral-tdeadband)) {   // outside deadband, in reverse
+  if (ch2_rcvalue<(thrNeutral-tdeadband)) {   // outside deadband, in REVERSE
     // if throttle in reverse do this
     motordirection(reverse);   
 	  turnonly = false;
     //Serial.println("Reverse");  
   }
-  else if (ch2_rcvalue>(thrNeutral+tdeadband)) { // outside deadband, going forward
+  else if (ch2_rcvalue>(thrNeutral+tdeadband)) { // outside deadband, in FORWARD
     // throttle in forward do this
     motordirection(forward);
 	  turnonly = false;
     //Serial.println("Forward");  
   }
-  else if (ch1_rcvalue>(strNeutral+sdeadband)) { // RIGHT TURN, no throttle
+  else if (ch1_rcvalue>(strNeutral+sdeadband)) { // no throttle, RIGHT TURN
     // throttle in forward do this
     motordirection(rightturn);
 	  turnonly = true;
     //Serial.println("RIGHTTURN");
   }
-  else if (ch1_rcvalue<(strNeutral-sdeadband)) { // LEFT TURN, no throttle
+  else if (ch1_rcvalue<(strNeutral-sdeadband)) { // no throttle, LEFT TURN
     // throttle in forward do this
     motordirection(leftturn);
 	  turnonly = true;
