@@ -82,6 +82,12 @@ volatile uint16_t rc_shared[numRC_Channels];     //temp array for PWM values to 
 uint16_t rc_raw[numRC_Channels];    //array of PWM values rec'd 
 volatile uint16_t rc_raw_shared[numRC_Channels];     //temp array for PWM values to make calcs. 
 
+//offset values to 'tune' the wheels to run at same speed.
+int offsetRightFWD = 0;
+int offsetRightREV = 0;
+int offsetLeftFWD = 0;
+int offsetLeftREV = 0;
+
 
 //--------------------------------------------------------------------------------------  
 //------------------------------- void setup() -----------------------------------------     
