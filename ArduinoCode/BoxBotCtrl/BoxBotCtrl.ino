@@ -315,7 +315,7 @@ void locomotion() {
 	  turnonly = true;
     //Serial.println("LeftTurn");
   }
-  else { // in deadband, bring both motors to a stop
+  else { // in deadband, bring both motors to a stop   BRAKE
     motordirection(brake);
 	  turnonly = false;
     //Serial.println("brake");
@@ -350,13 +350,10 @@ void locomotion() {
       analogWrite(lpwm, spd) ;
       analogWrite(rpwm, spd);
     }
-  }
+  } 
+}
 
-/*  int drag = (spd-turn);
-  drag = constrain(drag,0,255);
-
-  Serial.print("turn:");  Serial.print(turn);  Serial.print("\t");
-  Serial.print("spd:");   Serial.print(spd);   Serial.print("\t");
-  Serial.print("drag:");  Serial.println(drag);   */
-  
+void writePWMvalue (int leftPWMval, int rightPWMval){
+  analogWrite(lpwm, leftPWMval);
+  analogWrite(rpwm, rightPWMval);
 }
