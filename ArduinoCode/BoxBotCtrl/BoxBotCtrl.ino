@@ -359,27 +359,30 @@ void locomotion() {
     //---------------------------------------------------------------------------------
     int spd = abs(thrNeutral-ch2_rcvalue);  
     int spdPWM = 0;      //variable to write offset pwm.  do i need?    
-
+    int drag = 0;
+    
     if (turn > (sdeadband)) {   // outside the steering deadband	  
 	    if (ch1_rcvalue<neutral) { //STEERING LEFT        
-        turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);
-        analogWrite(lpwm, spd);
-        //ADD DRAG VARIABLE PWM OFFSET (?)  OR IS IT IN THE CALC?  
-        //  turnPWM = pwmOffsetCalc(turn, offsetRightPerc);
-
-        //call sppeed function here.
-        //call drag function here...  
+        spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
+        analogWrite(lpwm, spdPWM);
+        spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
+        drag = dragCalc(spdPWM, turn)
         analogWrite(rpwm, drag);
       }
       else {  // steering right
+        spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
+        drag = dragCalc(spdPWM, turn)
         analogWrite(lpwm, drag);
-        analogWrite(rpwm, spd);
+        spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
+        analogWrite(rpwm, spdPWM);
       }
     }
 	else { // in the steering deadband
       //ADD SPEED pwm value.  maybe just one dummy variable before each (yes).
-      analogWrite(lpwm, spd);
-      analogWrite(rpwm, spd);
+      spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
+      analogWrite(lpwm, spdPWM);
+      spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
+      analogWrite(rpwm, spdPWM);
     }
   }
 }
@@ -391,9 +394,9 @@ int pwmOffsetCalc (int pwmVal, int offsetPerc) {
 }
 
 int dragCalc (int spdVal, int turnVal) {
-  int drag = (spdVal-turnVal);    // you can play with this value (increase/decrease) to get different behaviour
-  drag = constrain(drag,0,255);  
-  return drag; 
+  int dragVal = (spdVal-turnVal);    // you can play with this value (increase/decrease) to get different behaviour
+  dragVal = constrain(drag,0,255);  
+  return dragVal; 
 }
 
 //----------------------  currently this funciton not implemented ---------------
