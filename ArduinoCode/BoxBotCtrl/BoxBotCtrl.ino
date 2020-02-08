@@ -341,9 +341,10 @@ void locomotion() {
  
   if (turnonly == true) { //turn only
     //turn = turn/3;  //make turn only less sensitive and not too fast, modify divider
+	  
 	  analogWrite(lpwm, turn);
-    analogWrite(rpwm, turn);    
-  } 
+    analogWrite(rpwm, turn);
+  }
   else {                  // straight or straight with turn
     int spd = abs(thrNeutral-ch2_rcvalue);    
 
@@ -367,6 +368,14 @@ void locomotion() {
   }
 }
 
+int pwmOffsetCalc (int pwmVal, int offsetPerc) {
+  int offset = 0;
+  offset = pwmVal*offsetPerc/100 + pwmVal;
+  return offset;
+}
+
+
+//----------------------  currently this funciton not implemented ---------------
 void writePWMvalue (int leftPWMval, int rightPWMval){
   analogWrite(lpwm, leftPWMval);
   analogWrite(rpwm, rightPWMval);
