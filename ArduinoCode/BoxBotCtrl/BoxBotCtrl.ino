@@ -83,12 +83,18 @@ uint16_t rc_raw[numRC_Channels];    //array of PWM values rec'd
 volatile uint16_t rc_raw_shared[numRC_Channels];     //temp array for PWM values to make calcs. 
 
 //offset values to 'tune' the wheels to run at same speed.  These values are entered in PWM counts and add/subracted to 
-//   the appropriate wheel based on the direction commanded.  
+//   the appropriate wheel based on the direction commanded. 
+//   CHANGE THESE VALUES AS NEEDED 
 int offsetRightFWD = 0;
 int offsetRightREV = 0;
 int offsetLeftFWD = 0;
 int offsetLeftREV = 0;
 
+//offset calculation values (do not change) 
+//  dummy variables to set in direction selection function and then used in locomotion 
+//  to calc offset.  offset is a percentage...
+int offsetLeftPerc = 0;
+int offsetRightPerc = 0;
 
 //--------------------------------------------------------------------------------------  
 //------------------------------- void setup() -----------------------------------------     
@@ -247,15 +253,19 @@ void motordirection(byte direction) {
     case forward:
       digitalWrite(lpin1, HIGH);  
 	    digitalWrite(lpin2, LOW);
+      offsetLeftPerc = offsetLeftFWD
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
+      offsetRightPerc =  offsetRightFWD
       break;
 
     case reverse:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
+      offsetLeftPerc = offsetLeftREV
       digitalWrite(rpin1, LOW);
       digitalWrite(rpin2, HIGH);
+      offsetRightPerc =  offsetRightREV
       break;
 
     case brake:
@@ -268,15 +278,19 @@ void motordirection(byte direction) {
 	case rightturn:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
+      offsetLeftPerc =  offsetLeftFWD
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
+      offsetRightPerc =  offsetRightREV
       break;
 
     case leftturn:
       digitalWrite(lpin1, HIGH);
       digitalWrite(lpin2, LOW);
+      offsetLeftPerc =  offsetLeftFWD
       digitalWrite(rpin1, LOW);
       digitalWrite(rpin2, HIGH);
+      offsetRightPerc =  offsetRightREV
       break;
 	
 	default:  // coast condition
