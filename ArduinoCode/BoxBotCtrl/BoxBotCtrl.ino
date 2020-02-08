@@ -82,9 +82,15 @@ volatile uint16_t rc_shared[numRC_Channels];     //temp array for PWM values to 
 uint16_t rc_raw[numRC_Channels];    //array of PWM values rec'd 
 volatile uint16_t rc_raw_shared[numRC_Channels];     //temp array for PWM values to make calcs. 
 
-//offset values to 'tune' the wheels to run at same speed.  These values are entered in PWM counts and add/subracted to 
-//   the appropriate wheel based on the direction commanded. 
-//   CHANGE THESE VALUES AS NEEDED 
+//offset values to 'tune' the wheels to run at same speed so that the robot will run straight.  These
+//    will need to be tuned for each robot and any motor changes.
+//    These values are entered as a percentage REDUCTION of the speed.   
+//    The thinking is that when the wheels run FORWARD, one wheel will be faster than the other wheel
+//    so one wheel needs to be reduced in speed.  The same thing when running in REVERSE.
+//    Enter a 'postive' value that will be subtracted from the speed for that wheel in the
+//    particular direction (FWD or REV).  
+//    Using a RPM meter would be helpful, otherwise trial and error.  Would be nice to write an 
+//    interface to the robot (serially) to change this on the fly and save it to non-volitale 
 int offsetRightFWD = 0;
 int offsetRightREV = 0;
 int offsetLeftFWD = 0;
@@ -342,23 +348,27 @@ void locomotion() {
  
   if (turnonly == true) { //turn only
     //turn = turn/3;  //make turn only less sensitive and not too fast, modify divider
-	  turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);
+	  turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);  //do i even need this variable? 
+	  //      Place this in the analogwrite call??? 
 	  analogWrite(lpwm, turnPWM);
-    turnPWM = pwmOffsetCalc(turn, offsetRightPerc);
+    turnPWM = pwmOffsetCalc(turn, offsetRightPerc);  
     analogWrite(rpwm, turnPWM);
   }
   else {                  // straight or straight with turn
-    int spd = abs(thrNeutral-ch2_rcvalue);    
+    ///spdPWM area starts here---------------------------------------------------------
+    //---------------------------------------------------------------------------------
+    int spd = abs(thrNeutral-ch2_rcvalue);  
+    int spdPWM = 0;      //variable to write offset pwm.  do i need?    
 
-    if (turn > (sdeadband)) {   // outside the steering deadband
-      int drag = (spd-turn);    // you can play with this value (increase/decrease) to get different behaviour
-	  drag = constrain(drag,0,255);   
-	  
-	  if (ch1_rcvalue<neutral) { //steering left        
+    if (turn > (sdeadband)) {   // outside the steering deadband	  
+	    if (ch1_rcvalue<neutral) { //STEERING LEFT        
         turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);
         analogWrite(lpwm, spd);
         //ADD DRAG VARIABLE PWM OFFSET (?)  OR IS IT IN THE CALC?  
         //  turnPWM = pwmOffsetCalc(turn, offsetRightPerc);
+
+        //call sppeed function here.
+        //call drag function here...  
         analogWrite(rpwm, drag);
       }
       else {  // steering right
@@ -376,8 +386,14 @@ void locomotion() {
 
 int pwmOffsetCalc (int pwmVal, int offsetPerc) {
   int offset = 0;
-  offset = pwmVal*offsetPerc/100 + pwmVal;
+  offset = pwmVal - pwmVal*offsetPerc/100;
   return offset;
+}
+
+int dragCalc (int spdVal, int turnVal) {
+  int drag = (spdVal-turnVal);    // you can play with this value (increase/decrease) to get different behaviour
+  drag = constrain(drag,0,255);  
+  return drag; 
 }
 
 //----------------------  currently this funciton not implemented ---------------
