@@ -259,19 +259,19 @@ void motordirection(byte direction) {
     case forward:
       digitalWrite(lpin1, HIGH);  
 	    digitalWrite(lpin2, LOW);
-      offsetLeftPerc = offsetLeftFWD
+      offsetLeftPerc = offsetLeftFWD;
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
-      offsetRightPerc =  offsetRightFWD
+      offsetRightPerc = offsetRightFWD;
       break;
 
     case reverse:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
-      offsetLeftPerc = offsetLeftREV
+      offsetLeftPerc = offsetLeftREV;
       digitalWrite(rpin1, LOW);
       digitalWrite(rpin2, HIGH);
-      offsetRightPerc =  offsetRightREV
+      offsetRightPerc = offsetRightREV;
       break;
 
     case brake:
@@ -284,19 +284,19 @@ void motordirection(byte direction) {
 	case rightturn:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
-      offsetLeftPerc =  offsetLeftFWD
+      offsetLeftPerc = offsetLeftFWD;
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
-      offsetRightPerc =  offsetRightREV
+      offsetRightPerc = offsetRightREV;
       break;
 
     case leftturn:
       digitalWrite(lpin1, HIGH);
       digitalWrite(lpin2, LOW);
-      offsetLeftPerc =  offsetLeftFWD
+      offsetLeftPerc = offsetLeftFWD;
       digitalWrite(rpin1, LOW);
       digitalWrite(rpin2, HIGH);
-      offsetRightPerc =  offsetRightREV
+      offsetRightPerc = offsetRightREV;
       break;
 	
 	default:  // coast condition
@@ -366,12 +366,12 @@ void locomotion() {
         spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
         analogWrite(lpwm, spdPWM);
         spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
-        drag = dragCalc(spdPWM, turn)
+        drag = dragCalc(spdPWM, turn);
         analogWrite(rpwm, drag);
       }
       else {  // steering right
         spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
-        drag = dragCalc(spdPWM, turn)
+        drag = dragCalc(spdPWM, turn);
         analogWrite(lpwm, drag);
         spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
         analogWrite(rpwm, spdPWM);
@@ -395,7 +395,7 @@ int pwmOffsetCalc (int pwmVal, int offsetPerc) {
 
 int dragCalc (int spdVal, int turnVal) {
   int dragVal = (spdVal-turnVal);    // you can play with this value (increase/decrease) to get different behaviour
-  dragVal = constrain(drag,0,255);  
+  dragVal = constrain(dragVal,0,255);  
   return dragVal; 
 }
 
