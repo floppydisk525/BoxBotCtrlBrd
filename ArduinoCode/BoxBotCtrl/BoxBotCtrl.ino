@@ -347,10 +347,10 @@ void locomotion() {
       }
     }
 	else { // in the steering deadband
-      analogWrite(lpwm, spd) ;
+      analogWrite(lpwm, spd);
       analogWrite(rpwm, spd);
     }
-  } 
+  }
 }
 
 void writePWMvalue (int leftPWMval, int rightPWMval){
