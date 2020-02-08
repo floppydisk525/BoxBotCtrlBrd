@@ -337,13 +337,15 @@ void locomotion() {
     
 	
   int turn = abs(strNeutral-ch1_rcvalue);
+  int turnPWM = 0;
   // turn = turn >> 1;    // making steering less sensitive by dividing turn result by 4.
  
   if (turnonly == true) { //turn only
     //turn = turn/3;  //make turn only less sensitive and not too fast, modify divider
-	  
-	  analogWrite(lpwm, turn);
-    analogWrite(rpwm, turn);
+	  turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);
+	  analogWrite(lpwm, turnPWM);
+    turnPWM = pwmOffsetCalc(turn, offsetRightPerc);
+    analogWrite(rpwm, turnPWM);
   }
   else {                  // straight or straight with turn
     int spd = abs(thrNeutral-ch2_rcvalue);    
@@ -352,8 +354,11 @@ void locomotion() {
       int drag = (spd-turn);    // you can play with this value (increase/decrease) to get different behaviour
 	  drag = constrain(drag,0,255);   
 	  
-	  if (ch1_rcvalue<neutral) { //steering left
+	  if (ch1_rcvalue<neutral) { //steering left        
+        turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);
         analogWrite(lpwm, spd);
+        //ADD DRAG VARIABLE PWM OFFSET (?)  OR IS IT IN THE CALC?  
+        //  turnPWM = pwmOffsetCalc(turn, offsetRightPerc);
         analogWrite(rpwm, drag);
       }
       else {  // steering right
@@ -362,6 +367,7 @@ void locomotion() {
       }
     }
 	else { // in the steering deadband
+      //ADD SPEED pwm value.  maybe just one dummy variable before each (yes).
       analogWrite(lpwm, spd);
       analogWrite(rpwm, spd);
     }
@@ -373,7 +379,6 @@ int pwmOffsetCalc (int pwmVal, int offsetPerc) {
   offset = pwmVal*offsetPerc/100 + pwmVal;
   return offset;
 }
-
 
 //----------------------  currently this funciton not implemented ---------------
 void writePWMvalue (int leftPWMval, int rightPWMval){
