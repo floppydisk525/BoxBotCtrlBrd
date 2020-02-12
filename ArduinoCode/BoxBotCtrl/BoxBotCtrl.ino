@@ -152,7 +152,7 @@ void setup() {
   enableInterrupt(ch3_pin, get_ch3, CHANGE);
 
   //debugging - comment out serial command if not needed...
-  //Serial.begin(9600); 
+  Serial.begin(9600); 
 }
 
 
@@ -183,10 +183,10 @@ void loop() {
     // So now both ch1 and ch2 are in the range of 0 to 512, with 255 being neutral
     // ch3 is either 0ish or 1000ish
   
-/*  //print values while debugging, comment out when program setup and running as expected.  
+  //print values while debugging, comment out when program setup and running as expected.  
     Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
     Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
-    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);  */
+    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);  
   
     locomotion();   //Calculate and determine direction of vehicle
   } 
