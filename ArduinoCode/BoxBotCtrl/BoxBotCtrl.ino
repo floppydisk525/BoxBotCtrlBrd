@@ -2,7 +2,7 @@
  * 
  * Program Name:
  * BoxBotCtrl.ino
- * Jan 26, 2020
+ * Jan 31, 2020
  * 
  * Arduino Nano clone w/ CH340 USB connected to TB6612 motor driver board
  * hooked up to receiver of 2.4GHz TX/RX 
@@ -14,9 +14,10 @@
  * CH3 - Switch
  * 
  * TO DO LIST:
- *   1. Add smoothing to pwm readings
- *   2. add tuning for fwd/rev counts to drive straight.
- *   3. add code to turn on LED for weapon
+ *   1. add tuning for fwd/rev counts to drive straight.
+ *   2. add code to turn on LED for weapon
+ *   
+ * SMOOTHING added 1/31/2020.
  *
  */
 
@@ -48,6 +49,9 @@
 
 int mtrspeed = 110 ;
 
+#define numRC_Channels 3
+#define numSmoothUnits 4       //number of PWM readings to take and smooth.  Since one PWM signal is 20ms (mille secs), taking 5
+
 int ch1_rcvalue; // Steering value to make output calcs
 int ch2_rcvalue; // Thottle value to make output calcs
 int ch3_rcvalue; // Weapon Switch to make output calcs
@@ -60,9 +64,30 @@ byte thrNeutral = 255;   //throttle neutral
 
 int count = 0;
 
-uint16_t rc_values[3];    //array of PWM values rec'd 
+/*uint16_t rc_values[3];    //array of PWM values rec'd 
 uint32_t rc_start[3];     //time at start of data collection
 volatile uint16_t rc_shared[3];     //temp array for PWM values during reception
+*/
+
+//ARRAYS FOR PWM VALUES AND SMOOTHING
+uint16_t total[numRC_Channels];      //keeps track of the total for faster average calc
+uint16_t readings[numRC_Channels][numSmoothUnits];    //2d-array to keep track of readings
+int readIndex[numRC_Channels];       //keeps track of readIndex for each channel
+
+uint16_t rc_values[numRC_Channels];    //array of PWM values rec'd 
+uint32_t rc_start[numRC_Channels];     //time at start of data collection
+volatile uint16_t rc_shared[numRC_Channels];     //temp array for PWM values to make calcs.  Will be the SMOOTHED values.  
+
+//show raw values along with smoothed values. 
+uint16_t rc_raw[numRC_Channels];    //array of PWM values rec'd 
+volatile uint16_t rc_raw_shared[numRC_Channels];     //temp array for PWM values to make calcs. 
+
+//offset values to 'tune' the wheels to run at same speed.  These values are entered in PWM counts and add/subracted to 
+//   the appropriate wheel based on the direction commanded.  
+int offsetRightFWD = 0;
+int offsetRightREV = 0;
+int offsetLeftFWD = 0;
+int offsetLeftREV = 0;
 
 
 //--------------------------------------------------------------------------------------  
@@ -84,11 +109,6 @@ void setup() {
   pinMode(ch2_pin, INPUT);       // channel two of RC receiver, throttle
   pinMode(ch3_pin, INPUT);       // channel three of RC receiver, switch
 
-  //turn on interrupts
-  enableInterrupt(ch1_pin, get_ch1, CHANGE);
-  enableInterrupt(ch2_pin, get_ch2, CHANGE);
-  enableInterrupt(ch3_pin, get_ch3, CHANGE);
-
   // turn on the things
   digitalWrite(standby, HIGH);  
 
@@ -100,8 +120,27 @@ void setup() {
   analogWrite(lpwm, mtrspeed);
   analogWrite(rpwm, mtrspeed);
 
+  //initalize arrays   
+  for (int i=0; i<numRC_Channels; i++)
+  {
+    total[i]=0;
+    readIndex[i]=0;
+    rc_values[i]=0;
+    rc_start[i]=0;
+    rc_shared[i]=0;
+    for (int j = 0; j< numSmoothUnits; j++)
+    {
+       readings[i][j] = 0;
+    }
+  }
+
+  //turn on interrupts
+  enableInterrupt(ch1_pin, get_ch1, CHANGE);
+  enableInterrupt(ch2_pin, get_ch2, CHANGE);
+  enableInterrupt(ch3_pin, get_ch3, CHANGE);
+
   //debugging - comment out serial command if not needed...
-  //Serial.begin(9600); 
+  Serial.begin(9600); 
 }
 
 
@@ -132,10 +171,10 @@ void loop() {
     // So now both ch1 and ch2 are in the range of 0 to 512, with 255 being neutral
     // ch3 is either 0ish or 1000ish
   
-/*  //print values while debugging, comment out when program setup and running as expected.  
+  //print values while debugging, comment out when program setup and running as expected.  
     Serial.print("ch1_rcvalue:"); Serial.print(ch1_rcvalue);    Serial.print("\t");
     Serial.print("ch2_rcvalue:"); Serial.print(ch2_rcvalue);    Serial.print("\t");
-    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);  */
+    Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);  
   
     locomotion();   //Calculate and determine direction of vehicle
   } 
@@ -165,6 +204,7 @@ bool bTransmitterON(){
 void rc_read_values() {
   noInterrupts();
   memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
+  memcpy(rc_raw, (const void *)rc_raw_shared, sizeof(rc_raw_shared));
   interrupts();
 }
 
@@ -172,10 +212,19 @@ void get_input(uint8_t channel, uint8_t input_pin) {
   if (digitalRead(input_pin) == HIGH) {
     rc_start[channel] = micros();
   } else {
+    total[channel] = total[channel]-readings[channel][readIndex[channel]];    
     uint16_t rc_compare = (uint16_t)(micros() - rc_start[channel]);
-    //add in limits (?)
-    //add in smoothing - ie 3x3 or 3x4 array... 
-    rc_shared[channel] = rc_compare;
+    readings[channel][readIndex[channel]] = rc_compare;
+    rc_raw_shared[channel] = rc_compare;  //store a copy of the raw value to display
+    total[channel] = total[channel]+readings[channel][readIndex[channel]];
+    readIndex[channel] = readIndex[channel]+1;
+    if (readIndex[channel] >= numSmoothUnits)  {
+      readIndex[channel]=0;
+    }
+
+    //avg=total[channel]/numSmoothUnits;
+    rc_shared[channel] = total[channel]/numSmoothUnits;
+    //rc_shared[channel] = rc_compare;
   }
 
 //  Serial.print("count # = ");
@@ -242,25 +291,25 @@ void motordirection(byte direction) {
 void locomotion() {
   bool turnonly = false;  
   
-  if (ch2_rcvalue<(thrNeutral-tdeadband)) {   // outside deadband, in reverse
+  if (ch2_rcvalue<(thrNeutral-tdeadband)) {   // outside deadband, in REVERSE
     // if throttle in reverse do this
     motordirection(reverse);   
 	  turnonly = false;
     //Serial.println("Reverse");  
   }
-  else if (ch2_rcvalue>(thrNeutral+tdeadband)) { // outside deadband, going forward
+  else if (ch2_rcvalue>(thrNeutral+tdeadband)) { // outside deadband, in FORWARD
     // throttle in forward do this
     motordirection(forward);
 	  turnonly = false;
     //Serial.println("Forward");  
   }
-  else if (ch1_rcvalue>(strNeutral+sdeadband)) { // RIGHT TURN, no throttle
+  else if (ch1_rcvalue>(strNeutral+sdeadband)) { // no throttle, RIGHT TURN
     // throttle in forward do this
     motordirection(rightturn);
 	  turnonly = true;
     //Serial.println("RIGHTTURN");
   }
-  else if (ch1_rcvalue<(strNeutral-sdeadband)) { // LEFT TURN, no throttle
+  else if (ch1_rcvalue<(strNeutral-sdeadband)) { // no throttle, LEFT TURN
     // throttle in forward do this
     motordirection(leftturn);
 	  turnonly = true;
