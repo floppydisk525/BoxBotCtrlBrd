@@ -23,14 +23,13 @@
 
 #include <EnableInterrupt.h>
 
-#define   lpwm    3     // pulse width modulation for left motor is pin 3
-#define   lpin1   4     // left control pin one is pin 4
-#define   lpin2   5     // left control pin two is pin 5
-#define   standby 7     // standby pin is 7 - LOW=motor driver off, HIGH=motor driver on
-#define   rpwm    6     // pulse width modulation for right motor is pin 6
-#define   rpin1   8     // right control pin one is pin8
-#define   rpin2   9     // right control pin two is pin 9
-
+#define   lpwm    3     // pulse width modulation for left motor
+#define   lpin1   5     // left control pin one
+#define   lpin2   4     // left control pin two
+#define   standby 6     // standby pin - LOW=motor driver off, HIGH=motor driver on
+#define   rpwm    9     // pulse width modulation for right motor
+#define   rpin1   7     // right control pin one
+#define   rpin2   8     // right control pin two
 
 #define   forward 0     
 #define   reverse 1
