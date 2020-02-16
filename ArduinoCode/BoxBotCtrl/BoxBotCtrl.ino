@@ -46,8 +46,19 @@
 #define   ch2_index  1
 #define   ch3_index  2
 
-#define transOFF A0     //define pin (output) for transmitter OFF
 #define ch3Output A1    //define pin (output) for channel 3 on.  
+
+//define transOFF flashing variables
+#define transOFF A0     //define pin (output) for transmitter OFF
+// Variables will change:
+int transOFFState = LOW;             // ledState used to set the LED
+
+// Generally, you should use "unsigned long" for variables that hold time
+// The value will quickly become too large for an int to store
+unsigned long previousMillis = 0;        // will store last time LED was updated
+
+// constants won't change:
+const long periodFlash = 1000;           // interval at which to blink (milliseconds)
 
 int mtrspeed = 110;       //value from original boxbot prog - could be changed.
 
@@ -211,9 +222,36 @@ bool bTransmitterON(){
 
   if (ch1_rcvalue < 750){  //check to see if the transmitter is ON.  Only check channel 1 steering.
     Serial.println("Turn ON your Transmitter!!"); //Serial.print("\t");
+    //flashIO();    //flash the io output to show user issue....
     return false;
   }
   else return true;
+}
+
+//---------------------------- flashIO function -------------------------------
+//  This function takes in a pin assignment, flash length variable, and last flash variable
+//    flashes a digitial output for that time period.  
+//    Since it takes in the output, flash period, and last time value toggled, the user can
+//    change the period by updating the const at the beg of the program.  
+//    This is only for flashing an output, doesn't to much else.
+
+void flashIO (){
+  unsigned long currentMillis = millis();
+
+    if (currentMillis - previousMillis >= periodFlash) {
+    // save the last time you blinked the LED
+    previousMillis = currentMillis;
+
+    // if the LED is off turn it on and vice-versa:
+    if (transOFFState == LOW) {
+      transOFFState = HIGH;
+    } else {
+      transOFFState = LOW;
+    }
+
+    // set the LED with the ledState of the variable:
+    digitalWrite(transOFF, transOFFState);
+  }
 }
 
 //------------------------- ISR READ INTERRUPTS -------------------------- 
@@ -410,6 +448,8 @@ int dragCalc (int spdVal, int turnVal) {
 //This function writes the output ch3Output based on the ch3 rc value.  If it's 
 //  high it will turn on the output (what about start up?)
 void ch3OuputFunc(){
+  //this code is a little jank, add a variable to only write the output when 
+  //  the output has been changed.  but this will work for now.
   if (ch3_rcvalue>750){   //ch3 ON
     digitalWrite(ch3Output, HIGH);
   }
@@ -417,33 +457,6 @@ void ch3OuputFunc(){
     digitalWrite(ch3Output,LOW);
   }
 }
-
-//---------------------------- flashIO function -------------------------------
-//  This function takes in a pin assignment, flash length variable, and last flash variable
-//    flashes a digitial output for that time period.  
-//    Since it takes in the output, flash period, and last time value toggled, the user can
-//    change the period by updating the const at the beg of the program.  
-//    This is only for flashing an output, doesn't to much else.
-
-void flashIO (byte pinAssign, int periodFlash){
-  unsigned long currentMillis = millis();
-
-    if (currentMillis - previousMillis >= periodFlash) {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
-
-    // if the LED is off turn it on and vice-versa:
-    if (ledState == LOW) {
-      ledState = HIGH;
-    } else {
-      ledState = LOW;
-    }
-
-    // set the LED with the ledState of the variable:
-    digitalWrite(pinAssign, ledState);
-  }
-}
-
 
 //----------------------  currently this funciton not implemented ---------------
 void writePWMvalue (int leftPWMval, int rightPWMval){
