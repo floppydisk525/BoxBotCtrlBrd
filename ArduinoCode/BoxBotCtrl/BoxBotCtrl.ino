@@ -2,7 +2,7 @@
  * 
  * Program Name:
  * BoxBotCtrl.ino
- * Jan 31, 2020
+ * Feb 16, 2020
  * 
  * Arduino Nano clone w/ CH340 USB connected to TB6612 motor driver board
  * hooked up to receiver of 2.4GHz TX/RX 
@@ -46,7 +46,10 @@
 #define   ch2_index  1
 #define   ch3_index  2
 
-int mtrspeed = 110 ;
+#define transOFF A0     //define pin (output) for transmitter OFF
+#define ch3Output A1    //define pin (output) for channel 3 on.  
+
+int mtrspeed = 110;       //value from original boxbot prog - could be changed.
 
 #define numRC_Channels 3
 #define numSmoothUnits 4       //number of PWM readings to take and smooth.  Since one PWM signal is 20ms (mille secs), taking 5
@@ -114,6 +117,8 @@ void setup() {
   pinMode(rpin1, OUTPUT);
   pinMode(rpin2, OUTPUT);
   pinMode(standby, OUTPUT);
+  pinMode(transOFF, OUTPUT);
+  pinMode(ch3Output, OUTPUT);
 
   //setup input pins
   pinMode(ch1_pin, INPUT);       // channel one of RC receiver, steering
@@ -130,6 +135,8 @@ void setup() {
   digitalWrite(rpin2, LOW);
   analogWrite(lpwm, mtrspeed);
   analogWrite(rpwm, mtrspeed);
+  digitalWrite(transOFF, LOW);
+  digitalWrite(ch3Output, LOW);
 
   //initalize arrays   
   for (int i=0; i<numRC_Channels; i++)
