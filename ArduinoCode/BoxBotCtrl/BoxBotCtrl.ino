@@ -195,6 +195,7 @@ void loop() {
     Serial.print("ch3_rcvalue:"); Serial.println(ch3_rcvalue);  
   
     locomotion();   //Calculate and determine direction of vehicle
+    ch3OuputFunc();
   } 
     
   delay(1);   //Why this here?  How much should it be??  Seems unnecessary.  
@@ -404,6 +405,45 @@ int dragCalc (int spdVal, int turnVal) {
   dragVal = constrain(dragVal,0,255);  
   return dragVal; 
 }
+
+//---------------------------- ch3OuputFunc()----------------------------------
+//This function writes the output ch3Output based on the ch3 rc value.  If it's 
+//  high it will turn on the output (what about start up?)
+void ch3OuputFunc(){
+  if (ch3_rcvalue>750){   //ch3 ON
+    digitalWrite(ch3Output, HIGH);
+  }
+  else {
+    digitalWrite(ch3Output,LOW);
+  }
+}
+
+//---------------------------- flashIO function -------------------------------
+//  This function takes in a pin assignment, flash length variable, and last flash variable
+//    flashes a digitial output for that time period.  
+//    Since it takes in the output, flash period, and last time value toggled, the user can
+//    change the period by updating the const at the beg of the program.  
+//    This is only for flashing an output, doesn't to much else.
+
+void flashIO (byte pinAssign, int periodFlash){
+  unsigned long currentMillis = millis();
+
+    if (currentMillis - previousMillis >= periodFlash) {
+    // save the last time you blinked the LED
+    previousMillis = currentMillis;
+
+    // if the LED is off turn it on and vice-versa:
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+
+    // set the LED with the ledState of the variable:
+    digitalWrite(pinAssign, ledState);
+  }
+}
+
 
 //----------------------  currently this funciton not implemented ---------------
 void writePWMvalue (int leftPWMval, int rightPWMval){
