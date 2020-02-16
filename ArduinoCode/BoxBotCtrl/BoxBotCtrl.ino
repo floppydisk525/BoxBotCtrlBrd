@@ -23,14 +23,13 @@
 
 #include <EnableInterrupt.h>
 
-#define   lpwm    3     // pulse width modulation for left motor is pin 3
-#define   lpin1   4     // left control pin one is pin 4
-#define   lpin2   5     // left control pin two is pin 5
-#define   standby 7     // standby pin is 7 - LOW=motor driver off, HIGH=motor driver on
-#define   rpwm    6     // pulse width modulation for right motor is pin 6
-#define   rpin1   8     // right control pin one is pin8
-#define   rpin2   9     // right control pin two is pin 9
-
+#define   lpwm    3     // pulse width modulation for left motor
+#define   lpin1   5     // left control pin one
+#define   lpin2   4     // left control pin two
+#define   standby 6     // standby pin - LOW=motor driver off, HIGH=motor driver on
+#define   rpwm    9     // pulse width modulation for right motor
+#define   rpin1   7     // right control pin one
+#define   rpin2   8     // right control pin two
 
 #define   forward 0     
 #define   reverse 1
@@ -82,13 +81,25 @@ volatile uint16_t rc_shared[numRC_Channels];     //temp array for PWM values to 
 uint16_t rc_raw[numRC_Channels];    //array of PWM values rec'd 
 volatile uint16_t rc_raw_shared[numRC_Channels];     //temp array for PWM values to make calcs. 
 
-//offset values to 'tune' the wheels to run at same speed.  These values are entered in PWM counts and add/subracted to 
-//   the appropriate wheel based on the direction commanded.  
+//offset values to 'tune' the wheels to run at same speed so that the robot will run straight.  These
+//    will need to be tuned for each robot and any motor changes.
+//    These values are entered as a percentage REDUCTION of the speed.   
+//    The thinking is that when the wheels run FORWARD, one wheel will be faster than the other wheel
+//    so one wheel needs to be reduced in speed.  The same thing when running in REVERSE.
+//    Enter a 'postive' value that will be subtracted from the speed for that wheel in the
+//    particular direction (FWD or REV).  
+//    Using a RPM meter would be helpful, otherwise trial and error.  Would be nice to write an 
+//    interface to the robot (serially) to change this on the fly and save it to non-volitale 
 int offsetRightFWD = 0;
 int offsetRightREV = 0;
 int offsetLeftFWD = 0;
 int offsetLeftREV = 0;
 
+//offset calculation values (do not change) 
+//  dummy variables to set in direction selection function and then used in locomotion 
+//  to calc offset.  offset is a percentage...
+int offsetLeftPerc = 0;
+int offsetRightPerc = 0;
 
 //--------------------------------------------------------------------------------------  
 //------------------------------- void setup() -----------------------------------------     
@@ -247,15 +258,19 @@ void motordirection(byte direction) {
     case forward:
       digitalWrite(lpin1, HIGH);  
 	    digitalWrite(lpin2, LOW);
+      offsetLeftPerc = offsetLeftFWD;
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
+      offsetRightPerc = offsetRightFWD;
       break;
 
     case reverse:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
+      offsetLeftPerc = offsetLeftREV;
       digitalWrite(rpin1, LOW);
       digitalWrite(rpin2, HIGH);
+      offsetRightPerc = offsetRightREV;
       break;
 
     case brake:
@@ -268,15 +283,19 @@ void motordirection(byte direction) {
 	case rightturn:
       digitalWrite(lpin1, LOW);
       digitalWrite(lpin2, HIGH);
+      offsetLeftPerc = offsetLeftFWD;
       digitalWrite(rpin1, HIGH);
       digitalWrite(rpin2, LOW);
+      offsetRightPerc = offsetRightREV;
       break;
 
     case leftturn:
       digitalWrite(lpin1, HIGH);
       digitalWrite(lpin2, LOW);
+      offsetLeftPerc = offsetLeftFWD;
       digitalWrite(rpin1, LOW);
       digitalWrite(rpin2, HIGH);
+      offsetRightPerc = offsetRightREV;
       break;
 	
 	default:  // coast condition
@@ -315,7 +334,7 @@ void locomotion() {
 	  turnonly = true;
     //Serial.println("LeftTurn");
   }
-  else { // in deadband, bring both motors to a stop
+  else { // in deadband, bring both motors to a stop   BRAKE
     motordirection(brake);
 	  turnonly = false;
     //Serial.println("brake");
@@ -323,40 +342,64 @@ void locomotion() {
     
 	
   int turn = abs(strNeutral-ch1_rcvalue);
+  int turnPWM = 0;
   // turn = turn >> 1;    // making steering less sensitive by dividing turn result by 4.
  
   if (turnonly == true) { //turn only
     //turn = turn/3;  //make turn only less sensitive and not too fast, modify divider
-	  analogWrite(lpwm, turn);
-    analogWrite(rpwm, turn);    
-  } 
+	  turnPWM = pwmOffsetCalc(turn, offsetLeftPerc);  //do i even need this variable? 
+	  //      Place this in the analogwrite call??? 
+	  analogWrite(lpwm, turnPWM);
+    turnPWM = pwmOffsetCalc(turn, offsetRightPerc);  
+    analogWrite(rpwm, turnPWM);
+  }
   else {                  // straight or straight with turn
-    int spd = abs(thrNeutral-ch2_rcvalue);    
-
-    if (turn > (sdeadband)) {   // outside the steering deadband
-      int drag = (spd-turn);    // you can play with this value (increase/decrease) to get different behaviour
-	  drag = constrain(drag,0,255);   
-	  
-	  if (ch1_rcvalue<neutral) { //steering left
-        analogWrite(lpwm, spd);
+    ///spdPWM area starts here---------------------------------------------------------
+    //---------------------------------------------------------------------------------
+    int spd = abs(thrNeutral-ch2_rcvalue);  
+    int spdPWM = 0;      //variable to write offset pwm.  do i need?    
+    int drag = 0;
+    
+    if (turn > (sdeadband)) {   // outside the steering deadband	  
+	    if (ch1_rcvalue<neutral) { //STEERING LEFT        
+        spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
+        analogWrite(lpwm, spdPWM);
+        spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
+        drag = dragCalc(spdPWM, turn);
         analogWrite(rpwm, drag);
       }
       else {  // steering right
+        spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
+        drag = dragCalc(spdPWM, turn);
         analogWrite(lpwm, drag);
-        analogWrite(rpwm, spd);
+        spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
+        analogWrite(rpwm, spdPWM);
       }
     }
 	else { // in the steering deadband
-      analogWrite(lpwm, spd) ;
-      analogWrite(rpwm, spd);
+      //ADD SPEED pwm value.  maybe just one dummy variable before each (yes).
+      spdPWM = pwmOffsetCalc(spd, offsetLeftPerc);
+      analogWrite(lpwm, spdPWM);
+      spdPWM = pwmOffsetCalc(spd, offsetRightPerc);
+      analogWrite(rpwm, spdPWM);
     }
   }
+}
 
-/*  int drag = (spd-turn);
-  drag = constrain(drag,0,255);
+int pwmOffsetCalc (int pwmVal, int offsetPerc) {
+  int offset = 0;
+  offset = pwmVal - pwmVal*offsetPerc/100;
+  return offset;
+}
 
-  Serial.print("turn:");  Serial.print(turn);  Serial.print("\t");
-  Serial.print("spd:");   Serial.print(spd);   Serial.print("\t");
-  Serial.print("drag:");  Serial.println(drag);   */
-  
+int dragCalc (int spdVal, int turnVal) {
+  int dragVal = (spdVal-turnVal);    // you can play with this value (increase/decrease) to get different behaviour
+  dragVal = constrain(dragVal,0,255);  
+  return dragVal; 
+}
+
+//----------------------  currently this funciton not implemented ---------------
+void writePWMvalue (int leftPWMval, int rightPWMval){
+  analogWrite(lpwm, leftPWMval);
+  analogWrite(rpwm, rightPWMval);
 }
