@@ -222,10 +222,16 @@ bool bTransmitterON(){
 
   if (ch1_rcvalue < 750){  //check to see if the transmitter is ON.  Only check channel 1 steering.
     Serial.println("Turn ON your Transmitter!!"); //Serial.print("\t");
-    //flashIO();    //flash the io output to show user issue....
+    flashIO();    //flash the io output to show user issue....
     return false;
+  }  
+  else {
+    if (transOFFState == HIGH) {
+    transOFFState = LOW;
+    digitalWrite(transOFF, transOFFState);
+    }
+    return true;
   }
-  else return true;
 }
 
 //---------------------------- flashIO function -------------------------------
