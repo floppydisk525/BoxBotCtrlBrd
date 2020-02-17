@@ -46,10 +46,10 @@
 #define   ch2_index  1
 #define   ch3_index  2
 
-#define ch3Output A1    //define pin (output) for channel 3 on.  
+#define ch3Output A2    //define pin (output) for channel 3 on.  
 
 //define transOFF flashing variables
-#define transOFF A0     //define pin (output) for transmitter OFF
+#define transOFF A1     //define pin (output) for transmitter OFF
 // Variables will change:
 int transOFFState = LOW;             // ledState used to set the LED
 
